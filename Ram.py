@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-A register machine as often used in theoretic computer science.
+A register machine as often used in theoretic computer science.  The
+concept is based on the Random Access Machine introduced in the book
+'Theoretische Informatik' by Alexander Asteroth and Christel Baier
+(ISBN 3-8273-7033-7).  The only modification I made is a difference in
+the naming of operands to operators (see below).
+
+Usage
 
 Import Ram from this module and create an instance Ram ("filename")
 where 'filename' is the name of the file containing your program text,
@@ -32,7 +38,7 @@ GOTO k  :=  GOTO line number v(k)
 JZERO k :=  Jump to line number v(k) if accumulator == ZERO (0)
 END ?   :=  set program counter to 0 (termination)
 
-Agruments:
+Arguments:
 
 x     v(x)
 ------------
@@ -40,26 +46,12 @@ x     v(x)
 #k    reg[k]
 *k    reg[reg[k]]
 
-Example program:
+An example program can be found at the bottom of this file.  If you run
+this script without arguments, the example program will be written to
+a file 'tmp.ram' in your /tmp/ directory and used as input.  Not sure what
+this does on non-unix-like systems ...
 
-# multiply the two numbers in R1 and R2
-# first line initializes registers:
-0 6 3
-# program text starts here
-1  LOAD 0
-2  STORE #3
-3  LOAD #1
-4  JZERO 11
-5  SUB 1
-6  STORE #1
-7  LOAD #2
-8  ADD #3
-9  STORE #3
-10 GOTO 3
-11 LOAD #3
-12 END 0
-
-Copyright © 2011 Jogi Hofmüller <jogi@mur.at>
+Copyright © 2011 Jogi Hofmüller <j.hofmueller@student.tugraz.at>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
