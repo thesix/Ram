@@ -1,16 +1,17 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
-A register machine as often used in theoretic computer science
+A register machine as often used in theoretic computer science.
 
-Import rm from this module and create an instance rm ("filename")
-where filename is the name of your program text or run this module
-with your filenam as command line argument.
+Import Ram from this module and create an instance Ram ("filename")
+where 'filename' is the name of the file containing your program text,
+or run this module with your 'filename' as command line argument.
 
-Program text is a plain text file.  Any line starting with a hash
-mark ('#') is ignored.  The first non-comment line MUST be a
-series of integer numbers denoting the initial values of your
-registers.  The first register (index 0) is also the accumulator and MUST
-be initialized with 0.  Program text MUST be entered as
+Program text is a plain text file.  Any line starting with a hash mark
+('#') is ignored.  Empty lines MUST be avoided.  The first non-comment
+line MUST be a series of integer numbers denoting the initial values of
+your registers.  The first register (index 0) is also the accumulator
+and MUST be initialized with 0.  Program text MUST be entered as
 
 NUM COMMAND ARG
 
@@ -28,7 +29,7 @@ SUB k   :=  SUBtract v(k) from accumulator
 MULT k  :=  MULTiply accumulator by v(k)
 DIV k   :=  DIVide accumulator by v(k)
 GOTO k  :=  GOTO line number v(k)
-JZERO k :=  Jump to line number v(k) if accumulator == ZERO
+JZERO k :=  Jump to line number v(k) if accumulator == ZERO (0)
 END ?   :=  set program counter to 0 (termination)
 
 Agruments:
@@ -41,9 +42,9 @@ x     v(x)
 
 Example program:
 
-# multiply two numbers in R1 and R2
-# first line is register initialization
-0 6 3 0
+# multiply the two numbers in R1 and R2
+# first line initializes registers:
+0 6 3
 # program text starts here
 1  LOAD 0
 2  STORE #3
@@ -81,12 +82,21 @@ from math import log
 
 class Ram:
 
-  def __init__ (self, prog):
-    if not os.path.isfile (prog):
-      print "file '{0}' not found".format (prog)
+  def __init__ (self, filename):
+    if not os.path.isfile (filename):
+      print "file '{0}' not found".format (filename)
       self.ready = False
       return None
-    infile = open (prog, "r")
+    self.readprog (filename)
+    self.pc = 1
+    self.time = 0
+    self.space = []
+    for r in self.reg:
+      self.space.append (self.cost (r))
+    self.ready = True
+
+  def readprog (self, filename):
+    infile = open (filename, "r")
     self.prog = [("PROG", "REGMACHINE")]  # line 0 of program
     self.reg = []
     for line in infile.readlines ():
@@ -98,12 +108,7 @@ class Ram:
           self.reg.append (int (t))
       else:
         self.prog.append ((tokens[1], tokens[2]))
-    self.ready = True
-    self.pc = 1
-    self.time = 0
-    self.space = []
-    for r in self.reg:
-      self.space.append (self.cost (r))
+    infile.close ()
 
   def run (self):
     while self.pc != 0:
@@ -144,7 +149,7 @@ class Ram:
   def load (self, arg):
     """
     index errors are caught and reg will be expanded up to
-    the index arg;  this satisfies the need of infinite registers
+    the index in arg;  this satisfies the need of infinite registers
     initialized with 0.
     """
     try:
@@ -164,7 +169,7 @@ class Ram:
     """
     index errors are caught and reg will be expanded up to
     the index arg;  accumulator value will be stored at the
-    index inidcated by arg.
+    index indicated by arg.
     """
     try:
       self.reg[self.regindex (arg)] = self.reg[0]
@@ -175,15 +180,14 @@ class Ram:
       self.reg.append (self.reg[0])
       self.space.append (self.cost (self.reg[0]))
     self.pc += 1
+    self.addtime (arg, True)
     self.addspace (arg)
-    self.time += self.cost (self.reg[0])
 
   def add (self, arg):
     self.reg[0] += self.argval (arg)
     self.pc += 1
-    self.addtime (arg)
+    self.addtime (arg, True)
     self.addspace ("0")
-    self.time += self.cost (self.reg[0])
 
   def sub (self, arg):
     if self.argval (arg) > self.reg[0]:
@@ -191,38 +195,35 @@ class Ram:
     else:
       self.reg[0] -= self.argval (arg)
     self.pc += 1
-    self.addtime (arg)
-    self.time += self.cost (self.reg[0])
+    self.addtime (arg, True)
 
   def mult (self, arg):
     self.reg[0] *= self.argval (arg)
     self.pc += 1
-    self.addtime (arg)
+    self.addtime (arg, True)
     self.addspace ("0")
-    self.time += self.cost (self.reg[0])
 
   def div (self, arg):
     if self.argval (arg) == 0:
       raise Exception ("Division by zero")
     self.reg[0] /= self.argval (arg)
     self.pc += 1
-    self.addtime (arg)
-    self.time += self.cost (self.reg[0])
+    self.addtime (arg, True)
 
   def goto  (self, arg):
     self.pc = self.argval (arg)
-    self.time += 1
+    self.addtime ("1")
 
   def jzero (self, arg):
     if self.reg[0] == 0:
       self.pc = self.argval (arg)
     else:
       self.pc += 1
-    self.time += self.cost (self.reg[0])
+    self.addtime ("#0")
 
   def end (self):
     self.pc = 0
-    self.time += 1
+    self.addtime ("1")
 
   def cost (self, arg):
     if arg == 0:
@@ -237,7 +238,7 @@ class Ram:
     if self.cost (self.reg[i]) > self.space[i]:
       self.space[i] = self.cost (self.reg[i])
 
-  def addtime (self, arg):
+  def addtime (self, arg, addacc = False):
     if "#" == arg[0]:
       self.time += self.cost (int (arg[1:]))
       self.time += self.cost (self.reg[int (arg[1:])])
@@ -247,6 +248,8 @@ class Ram:
       self.time += self.cost (self.reg[self.reg [(int (arg[1:]))]])
     else:
       self.time += self.cost (int (arg))
+    if addacc:
+      self.time += self.cost (self.reg[0])
 
   def argval (self, arg):
     """
@@ -264,7 +267,7 @@ class Ram:
     decode reg[index] argument
     """
     if "*" == arg[0]:
-      return reg [(int (arg[1:]))]
+      return self.reg [(int (arg[1:]))]
     elif "#" == arg[0]:
       return int (arg[1:])
 
@@ -276,7 +279,7 @@ if __name__ == "__main__":
     p = """# temporary RAM program
 # multiply two numbers in R1 and R2
 # first line is register initialization
-0 6 3 0
+0 3 6
 # program text starts here
 1  LOAD 0
 2  STORE #3
