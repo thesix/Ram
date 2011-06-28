@@ -247,10 +247,10 @@ class Ram:
     """
     decode integer argument
     """
-    if "#" == arg[0]:
-      return self.reg[int (arg[1:])]
-    elif "*" == arg[0]:
+    if "*" == arg[0]:
       return self.reg[self.reg [(int (arg[1:]))]]
+    elif "#" == arg[0]:
+      return self.reg[int (arg[1:])]
     else:
       return int (arg)
 
