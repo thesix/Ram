@@ -76,9 +76,7 @@ class Ram:
 
   def __init__ (self, filename):
     if not os.path.isfile (filename):
-      print "file '{0}' not found".format (filename)
-      self.ready = False
-      return None
+      raise Exception ("file '{0}' not found".format (filename))
     self.readprog (filename)
     self.pc = 1
     # self.time = 0
@@ -292,14 +290,15 @@ if __name__ == "__main__":
     print "Created temporary program '/tmp/tmp.ram'"
     print p
     prog = "/tmp/tmp.ram"
-  
-  ram = Ram (prog)
-  if ram.ready:
-    try:
+
+  try:
+    ram = Ram (prog)
+    if ram.ready:
       ram.run ()
-    except Exception as e:
-      print "Error: {0}".format (e)
-      sys.exit (-1)
+  except Exception as e:
+    print "Fatal error:  {0}".format (e)
+    sys.exit (-1)
+  sys.exit (0)
 
 # vim: ts=2 tw=0
 # EOF
