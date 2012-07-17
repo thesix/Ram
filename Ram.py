@@ -4,8 +4,7 @@
 A register machine as often used in theoretic computer science.  The
 concept is based on the Random Access Machine introduced in the book
 'Theoretische Informatik' by Alexander Asteroth and Christel Baier
-(ISBN 3-8273-7033-7).  The only modification I made is a difference in
-the naming of operands to operators (see below).
+(ISBN 3-8273-7033-7).
 
 Usage
 
