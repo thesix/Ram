@@ -125,11 +125,7 @@ class Ram:
       raise Exception ("file '{0}' not found".format (filename))
     self.readprog (filename)
     self.pc = 1
-    # self.time = 0
-    # self.space = []
-    # for r in self.reg:
-    #   self.space.append (self.cost (r))
-    self.ready = True
+   self.ready = True
 
   def readprog (self, filename):
     infile = open (filename, "r")
@@ -176,10 +172,7 @@ class Ram:
         self.end ()
       else:
         print "Error:  Unknown cmd {0}".format (cmd[0])
-    # space = 0
-    # for s in self.space:
-    #   space += s
-    print "result(R)={0}".format (self.reg[0])
+   print "result(R)={0}".format (self.reg[0])
 
   def load (self, oper):
     """
@@ -192,13 +185,9 @@ class Ram:
     except IndexError:
       for i in range (len (self.reg), self.regindex (oper)):
         self.reg.append (0)
-        # self.space.append (0)
       self.reg.append (0)
-      # self.space.append (0)
       self.reg[0] = 0
     self.pc += 1
-    # self.addspace (oper)
-    # self.addtime (oper)
 
   def store (self, oper):
     """
@@ -213,18 +202,12 @@ class Ram:
     except IndexError:
       for i in range (len (self.reg), self.regindex (oper)):
         self.reg.append (0)
-        # self.space.append (0)
       self.reg.append (self.reg[0])
-      # self.space.append (self.cost (self.reg[0]))
     self.pc += 1
-    # self.addtime (oper, True)
-    # self.addspace (oper)
 
   def add (self, oper):
     self.reg[0] += self.decoper (oper)
     self.pc += 1
-    # self.addtime (oper, True)
-    # self.addspace ("0")
 
   def sub (self, oper):
     if self.decoper (oper) > self.reg[0]:
@@ -232,61 +215,28 @@ class Ram:
     else:
       self.reg[0] -= self.decoper (oper)
     self.pc += 1
-    # self.addtime (oper, True)
 
   def mult (self, oper):
     self.reg[0] *= self.decoper (oper)
     self.pc += 1
-    # self.addtime (oper, True)
-    # self.addspace ("0")
 
   def div (self, oper):
     if self.decoper (oper) == 0:
       raise Exception ("Division by zero")
     self.reg[0] /= self.decoper (oper)
     self.pc += 1
-    # self.addtime (oper, True)
 
   def goto  (self, oper):
     self.pc = int (oper)
-    # self.addtime ("1")
 
   def jzero (self, oper):
     if self.reg[0] == 0:
       self.pc = int (oper)
     else:
       self.pc += 1
-    # self.addtime ("0")
 
   def end (self):
     self.pc = 0
-    # self.addtime ("#1")
-
-  # def cost (self, oper):
-  #   if oper == 0:
-  #     return 1
-  #   else:
-  #     return int (log (oper, 2)) + 1
-
-  # def addspace (self, oper):
-  #   i = 0
-  #   if oper[0] == "#" or oper[0] == "*":
-  #     i = int (oper[1:])
-  #   if self.cost (self.reg[i]) > self.space[i]:
-  #     self.space[i] = self.cost (self.reg[i])
-
-  # def addtime (self, oper, addacc = False):
-  #   if "#" == oper[0]:
-  #     self.time += self.cost (int (oper[1:]))
-  #     self.time += self.cost (self.reg[int (oper[1:])])
-  #   elif "*" == oper[0]:
-  #     self.time += self.cost (int (oper[1:]))
-  #     self.time += self.cost (self.reg[int (oper[1:])])
-  #     self.time += self.cost (self.reg[self.reg [(int (oper[1:]))]])
-  #   else:
-  #     self.time += self.cost (int (oper))
-  #   if addacc:
-  #     self.time += self.cost (self.reg[0])
 
   def decoper (self, oper):
     """
