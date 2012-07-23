@@ -300,5 +300,4 @@ if __name__ == "__main__":
     sys.exit (-1)
   sys.exit (0)
 
-# vim: ts=2 tw=0
 # EOF
