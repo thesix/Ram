@@ -325,8 +325,7 @@ REGINIT 0 3 6
 
   try:
     ram = Ram (prog)
-    if ram.ready:
-      ram.run ()
+    ram.run ()
   except Exception as e:
     print "Fatal error:  {0}".format (e)
     sys.exit (-1)
