@@ -175,7 +175,7 @@ class Ram:
       elif cmd[0] == "END":
         self.end ()
       else:
-        print "Error:  Unknonw cmd {0}".format (cmd[0])
+        print "Error:  Unknown cmd {0}".format (cmd[0])
     # space = 0
     # for s in self.space:
     #   space += s
