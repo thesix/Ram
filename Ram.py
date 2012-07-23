@@ -63,19 +63,22 @@ Copyright © 2011 Jogi Hofmüller <j.hofmueller@student.tugraz.at>
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see
+    <http://www.gnu.org/licenses/>.
 
 """
 
 import os
 import sys
-from math import log
+
+class Command:
+
 
 class Register:
 
   """
-  A self expanding register, providing a quasi infinite number
-  of addresses
+  A self expanding register, providing a quasi infinite number of
+  addresses
   """
 
   def __init__ (self):
