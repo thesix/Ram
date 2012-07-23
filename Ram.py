@@ -232,6 +232,18 @@ class Register:
       self.expand (address)
     return self.register[address]
 
+  def setAccumulator (self, value):
+    """
+    set address 0 to value
+    """
+    self.setAddress (0, value)
+
+  def getAccumulator (self):
+    """
+    return the value at address 0
+    """
+    return self.getAddress (0)
+
   def expand (self, toAddress):
     """
     expand register to a length of toAddress + 1
@@ -241,145 +253,46 @@ class Register:
       self.append ()
       delta -= 1
 
+  def getPc (self):
+    return self.pc
+
+  def setPc (self, pc):
+    self.pc = pc
+
+  def incrementPc (self):
+    self.pc += 1
+
 class Ram:
 
   def __init__ (self, filename):
     if not os.path.isfile (filename):
       raise Exception ("file '{0}' not found".format (filename))
+    self.reg = Register ()
     self.readprog (filename)
-    self.pc = 1
-    self.ready = True
+    self.commandHandler = CommandHandler (self.reg)
 
   def readprog (self, filename):
     infile = open (filename, "r")
     self.prog = [("PROG", "REGMACHINE")]  # line 0 of program
-    self.reg = []
     for line in infile.readlines ():
-      tokens = line.split ()
-      if tokens[0][0] == "#":
+      token = line.split ()
+      if token[0][0] == "#":
         continue
-      elif len (self.reg) == 0:
-        for t in tokens:
-          self.reg.append (int (t))
+      elif token[0] == "REGINIT":
+        for word in token[1:]:
+          self.reg.append (int (word))
       else:
-        self.prog.append ((tokens[1], tokens[2]))
+        self.prog.append ((token[1], token[2]))
     infile.close ()
 
   def run (self):
-    while self.pc != 0:
+    while self.reg.getPc () != 0:
       try:
-        cmd = self.prog[self.pc]
+        cmd = self.prog[self.reg.getPc ()]
       except IndexError:
-        raise Exception ("Abnormal Termination @pc={0}".format (self.pc))
-      print "K=({0}, R[".format (self.pc),
-      for i in range (0, len (self.reg)):
-        print "\b({0},{1}), ".format (i, self.reg[i]),
-      print "\b])"
-      if cmd[0] == "LOAD":
-        self.load (cmd[1])
-      elif cmd[0] == "STORE":
-        self.store (cmd[1])
-      elif cmd[0] == "ADD":
-        self.add (cmd[1])
-      elif cmd[0] == "SUB":
-        self.sub (cmd[1])
-      elif cmd[0] == "MULT":
-        self.mult (cmd[1])
-      elif cmd[0] == "DIV":
-        self.div (cmd[1])
-      elif cmd[0] == "GOTO":
-        self.goto (cmd[1])
-      elif cmd[0] == "JZERO":
-        self.jzero (cmd[1])
-      elif cmd[0] == "END":
-        self.end ()
-      else:
-        print "Error:  Unknown cmd {0}".format (cmd[0])
-   print "result(R)={0}".format (self.reg[0])
-
-  def load (self, oper):
-    """
-    index errors are caught and reg will be expanded up to
-    the index in oper;  this satisfies the need of infinite registers
-    initialized with 0.
-    """
-    try:
-      self.reg[0] = self.decoper (oper)
-    except IndexError:
-      for i in range (len (self.reg), self.regindex (oper)):
-        self.reg.append (0)
-      self.reg.append (0)
-      self.reg[0] = 0
-    self.pc += 1
-
-  def store (self, oper):
-    """
-    index errors are caught and reg will be expanded up to
-    the index oper;  accumulator value will be stored at the
-    index indicated by oper.
-    """
-    if oper[0] == "#":
-      raise Exception ("STORE called with constant operand on line {0}".format (self.pc))
-    try:
-      self.reg[self.regindex (oper)] = self.reg[0]
-    except IndexError:
-      for i in range (len (self.reg), self.regindex (oper)):
-        self.reg.append (0)
-      self.reg.append (self.reg[0])
-    self.pc += 1
-
-  def add (self, oper):
-    self.reg[0] += self.decoper (oper)
-    self.pc += 1
-
-  def sub (self, oper):
-    if self.decoper (oper) > self.reg[0]:
-      self.reg[0] = 0
-    else:
-      self.reg[0] -= self.decoper (oper)
-    self.pc += 1
-
-  def mult (self, oper):
-    self.reg[0] *= self.decoper (oper)
-    self.pc += 1
-
-  def div (self, oper):
-    if self.decoper (oper) == 0:
-      raise Exception ("Division by zero")
-    self.reg[0] /= self.decoper (oper)
-    self.pc += 1
-
-  def goto  (self, oper):
-    self.pc = int (oper)
-
-  def jzero (self, oper):
-    if self.reg[0] == 0:
-      self.pc = int (oper)
-    else:
-      self.pc += 1
-
-  def end (self):
-    self.pc = 0
-
-  def decoper (self, oper):
-    """
-    decode operand
-    """
-    if "*" == oper[0]:
-      return self.reg[self.reg [(int (oper[1:]))]]
-    elif "#" == oper[0]:
-      return int (oper[1:])
-    else:
-      return self.reg[int (oper)]
-
-  def regindex (self, oper):
-    """
-    decode reg[index] argument
-    """
-    if "*" == oper[0]:
-      return self.reg [(int (oper[1:]))]
-    else:
-      return int (oper)
+        raise Exception ("Abnormal Termination @pc={0}".format (self.reg.getPc ()))
+      self.commandHandler.execute (cmd)
+    print "result(R)={0}".format (self.reg.getAccumulator ())
 
 if __name__ == "__main__":
   if len (sys.argv) == 2:
@@ -388,8 +301,8 @@ if __name__ == "__main__":
     outfile = open ("/tmp/tmp.ram", "w")
     p = """# temporary RAM program
 # multiply two numbers in R1 and R2
-# first line is register initialization
-0 3 6
+# this line initializes the registers 0, 1 and 2
+REGINIT 0 3 6
 # program text starts here
 1  LOAD #0
 2  STORE 3
