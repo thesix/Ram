@@ -106,7 +106,8 @@ class Register:
 
   def getAddress (self, address):
     """
-    return the value of register at address;  expand register if necessary
+    return the value of register at address;  expand register if
+    necessary
     """
     if address >= len (self.register):
       self.expand (address)
@@ -116,8 +117,8 @@ class Register:
     """
     expand register to a length of toAddress + 1
     """
-    delta = toAddress - len (self.register)
-    while delta >= 0:
+    delta = 1 + toAddress - len (self.register)
+    while delta > 0:
       self.append ()
       delta -= 1
 
@@ -128,7 +129,7 @@ class Ram:
       raise Exception ("file '{0}' not found".format (filename))
     self.readprog (filename)
     self.pc = 1
-   self.ready = True
+    self.ready = True
 
   def readprog (self, filename):
     infile = open (filename, "r")
