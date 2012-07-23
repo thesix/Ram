@@ -72,7 +72,123 @@ import os
 import sys
 
 class Command:
+  """
+  base class for all commands.
+  """
+  
+  def __init__ (self, register):
+    self.reg = register
 
+  def decoper (self, oper):
+    """
+    decode operand and return it´s value
+    """
+    if "*" == oper[0]:
+      return self.reg.getAddress (self.reg.getAddress (int (oper[1:])))
+    elif "#" == oper[0]:
+      return int (oper[1:])
+    else:
+      return self.reg.getAddress (int (oper))
+
+  def regindex (self, oper):
+    """
+    decode reg[index] argument
+    """
+    if "*" == oper[0]:
+      return self.reg.getAddress (int (oper[1:]))
+    else:
+      return int (oper)
+
+class CommandLoad (Command):
+
+  def execute (self, oper):
+    self.reg.setAccumulator (self.decoper (oper))
+    self.reg.incrementPc ()
+
+class CommandStore (Command):
+
+  def execute (self, oper):
+    if oper[0] == "#":
+      raise Exception ("STORE called with constant operand on line {0}".format
+                       (self.reg.getPc ()))
+    self.reg.setAddress (self.regindex (oper), self.reg.getAccumulator ())
+    self.reg.incrementPc ()
+
+class CommandAdd (Command):
+
+  def execute (self, oper):
+    self.reg.setAccumulator (self.reg.getAccumulator () + self.decoper (oper))
+    self.reg.incrementPc ()
+
+class CommandSub (Command):
+
+  def execute (self, oper):
+    if self.decoper (oper) > self.reg.getAccumulator ():
+      self.reg.setAccumulator ()
+    else:
+      self.reg.setAccumulator (self.reg.getAccumulator () - self.decoper (oper))
+    self.reg.incrementPc ()
+
+class CommandMult (Command):
+
+  def execute (self, oper):
+    self.reg.setAccumulator (self.reg.getAccumulator () * self.decoper (oper))
+    self.reg.incrementPc ()
+
+class CommandDiv (Command):
+
+  def execute (self, oper):
+    if self.decoper (oper) == 0:
+      raise Exception ("Division by zero")
+    self.reg.setAccumulator (self.reg.getAccumulator () / self.decoper (oper))
+    self.reg.incrementPc ()
+
+class CommandGoto (Command):
+
+  def execute  (self, oper):
+    self.reg.setPc (int (oper))
+
+class CommandJzero (Command):
+
+  def execute (self, oper):
+    if self.reg.getAccumulator () == 0:
+      self.reg.setPc (int (oper))
+    else:
+      self.reg.incrementPc ()
+
+class CommandEnd (Command):
+
+  def execute (self, oper):
+    self.reg.setPc (0)
+
+class CommandHandler:
+
+  def __init__ (self, register):
+    self.reg= register
+    self.commands = {}
+    self.commands ["LOAD"] = CommandLoad (self.reg);
+    self.commands ["STORE"] = CommandStore (self.reg);
+    self.commands ["ADD"] = CommandAdd (self.reg);
+    self.commands ["SUB"] = CommandSub (self.reg);
+    self.commands ["MULT"] = CommandMult (self.reg);
+    self.commands ["DIV"] = CommandDiv (self.reg);
+    self.commands ["JZERO"] = CommandJzero (self.reg);
+    self.commands ["GOTO"] = CommandGoto (self.reg);
+    self.commands ["END"] = CommandEnd (self.reg);
+
+  def printStatus (self, cmd):
+      # print "Execute command {0} ({1})".format (cmd[0], cmd[1])
+      print "K=({0}, R[".format (self.reg.getPc ()),
+      for i in range (0, self.reg.getLen ()):
+        print "\b({0},{1}), ".format (i, self.reg.getAddress (i)),
+      print "\b])"
+
+  def execute (self, cmd):
+    try:
+      self.printStatus (cmd)
+      self.commands[cmd[0]].execute (cmd[1])
+    except KeyError as e:
+      print "Command {0} not found".format (cmd[0])
 
 class Register:
 
@@ -83,6 +199,9 @@ class Register:
 
   def __init__ (self):
     self.register = []
+    # call by reference on primitives does not work;  therefor
+    # we inellegantly put the program counter here ...
+    self.pc = 1
 
   def append (self, value = 0):
     """
