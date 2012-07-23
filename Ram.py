@@ -71,6 +71,53 @@ import os
 import sys
 from math import log
 
+class Register:
+
+  """
+  A self expanding register, providing a quasi infinite number
+  of addresses
+  """
+
+  def __init__ (self):
+    self.register = []
+
+  def append (self, value = 0):
+    """
+    append value to the end of register
+    """
+    self.register.append (value)
+
+  def getLen (self):
+    """
+    return the length of register
+    """
+    return len (self.register)
+
+  def setAddress (self, address, value):
+    """
+    set register at address to value;  expand register if necessary
+    """
+    if address >= len (self.register):
+      self.expand (address)
+    self.register[address] = value
+
+  def getAddress (self, address):
+    """
+    return the value of register at address;  expand register if necessary
+    """
+    if address >= len (self.register):
+      self.expand (address)
+    return self.register[address]
+
+  def expand (self, toAddress):
+    """
+    expand register to a length of toAddress + 1
+    """
+    delta = toAddress - len (self.register)
+    while delta >= 0:
+      self.append ()
+      delta -= 1
+
 class Ram:
 
   def __init__ (self, filename):
