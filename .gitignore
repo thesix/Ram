@@ -3,3 +3,7 @@
 
 # ignore python byte compiles
 *.pyc
+
+# ignore doxygen generated documentation
+html/
+latex/
