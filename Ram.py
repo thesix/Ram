@@ -367,7 +367,7 @@ if __name__ == "__main__":
   if len (sys.argv) == 2:
     prog = sys.argv[1]
   else:
-    outfile = open ("/tmp/tmp.ram", "w")
+    outfile = NamedTemporaryFile (delete = False)
     p = """# temporary RAM program
 # Begining of program
 # multiply two numbers in registeres R1 and R2
@@ -388,10 +388,10 @@ REGINIT 0 6 7
 # End of program
 # EOF"""
     outfile.write (p)
-    outfile.close ()
-    print "Created temporary program '/tmp/tmp.ram'"
+    print "Created temporary program from sample in '{0}'".format (outfile.name)
     print p
-    prog = "/tmp/tmp.ram"
+    prog = outfile.name
+    outfile.close ()
 
   try:
     ram = Ram (prog)
