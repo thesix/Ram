@@ -300,15 +300,37 @@ class Register:
       delta -= 1
 
   def getPc (self):
+    """
+    return the program counter´s value
+    """
     return self.pc
 
   def setPc (self, pc):
+    """
+    set the program counter to pc
+    @param pc the new value of the program counter
+    """
     self.pc = pc
 
   def incrementPc (self):
+    """
+    increment the program counter by 1
+    """
     self.pc += 1
 
+  def printStatus (self):
+    """
+    print the current register status to stdout
+    """
+    print "K=({0}, R[".format (self.getPc ()),
+    for i in range (0, self.getLen ()):
+      print "\b({0},{1}), ".format (i, self.getAddress (i)),
+    print "\b])"
+
 class Ram:
+  """
+  the random access machine
+  """
 
   def __init__ (self, filename):
     if not os.path.isfile (filename):
