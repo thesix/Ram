@@ -1,1 +1,5 @@
+# ignore random access machine samples for now
 *.ram
+
+# ignore python byte compiles
+*.pyc
