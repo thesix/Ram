@@ -368,22 +368,23 @@ if __name__ == "__main__":
   else:
     outfile = open ("/tmp/tmp.ram", "w")
     p = """# temporary RAM program
-# multiply two numbers in R1 and R2
-# this line initializes the registers 0, 1 and 2
-REGINIT 0 3 6
-# program text starts here
-1  LOAD #0
-2  STORE 3
-3  LOAD 1
-4  JZERO 11
-5  SUB #1
-6  STORE 1
-7  LOAD 2
-8  ADD 3
-9  STORE 3
-10 GOTO 3
-11 LOAD 3
-12 END END
+# Begining of program
+# multiply two numbers in registeres R1 and R2
+# initialize registers 0, 1 and 2
+REGINIT 0 6 7
+1  LOAD #0        # load constant 0 to R0
+2  STORE 3        # save value at R3
+3  LOAD 1         # load R1 to R0
+4  JZERO 11       # got line 11 if R0==0
+5  SUB #1         # subtract constant 1 from R0
+6  STORE 1        # save value at R1
+7  LOAD 2         # load R2 to R0
+8  ADD 3          # add R3 to R0
+9  STORE 3        # save value at R3
+10 GOTO 3         # got line 3
+11 LOAD 3         # load R3 to R0 to display the result
+12 END END        # end program
+# End of program
 # EOF"""
     outfile.write (p)
     outfile.close ()
