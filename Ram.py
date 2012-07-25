@@ -70,6 +70,7 @@ Copyright © 2011 Jogi Hofmüller <j.hofmueller@student.tugraz.at>
 
 import os
 import sys
+from tempfile import NamedTemporaryFile
 
 class Command:
   """
