@@ -1,0 +1,63 @@
+Brief description
+
+  A register machine as often used in theoretic computer science.  The
+  concept is based on the Random Access Machine introduced in the book
+  'Theoretische Informatik' by Alexander Asteroth and Christel Baier
+  (ISBN 3-8273-7033-7).
+
+Usage
+
+  Import Ram from the module Ram.py and create an instance Ram
+  ("filename") where 'filename' is the name of the file containing your
+  program text, or run the module Ram.py with your 'filename' as command
+  line argument.
+
+  Program text is a plain text file.  Any line starting with a hash mark
+  ('#') is ignored.  Empty lines MUST be avoided.  The first non-comment
+  line MUST be a series of integer numbers denoting the initial values
+  of your registers.  The first register (index 0) is also the
+  accumulator and MUST be initialized with 0.  Program text MUST be
+  entered as
+
+    NUM COMMAND ARG
+
+  where NUM can be anything (usually the line number for orientation),
+  COMMAND is one of the accepted commands (see below) and ARG is the
+  argument for COMMAND.  Anything following ARG up to the next newline
+  ('\n') is ignored.
+
+COMMANDS (see meaning of arguments below):
+
+  LOAD k  :=  LOAD v(k) into accumulator
+  STORE i :=  STORE contents of accumulator at register i
+  ADD k   :=  ADD v(k) to accumulator
+  SUB k   :=  SUBtract v(k) from accumulator
+  MULT k  :=  MULTiply accumulator by v(k)
+  DIV k   :=  DIVide accumulator by v(k)
+  GOTO l  :=  GOTO line number l
+  JZERO l :=  Jump to line number l if accumulator == ZERO (0)
+  END ?   :=  set program counter to 0 (termination)
+
+Arguments
+
+  x     v(x)
+  ------------
+   k    reg[k]
+  #k    k
+  *k    reg[reg[k]]
+
+Copyright © 2011 Jogi Hofmüller <j.hofmueller@student.tugraz.at>
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or (at
+  your option) any later version.
+
+  This program is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
