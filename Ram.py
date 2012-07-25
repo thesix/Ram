@@ -100,42 +100,64 @@ class Command:
       return int (oper)
 
 class CommandLoad (Command):
+  """
+  load operand into accumulator
+  """
 
   def execute (self, oper):
     self.reg.setAccumulator (self.decoper (oper))
     self.reg.incrementPc ()
 
 class CommandStore (Command):
+  """
+  store accumulator in register specified by operand
+  """
 
   def execute (self, oper):
     if oper[0] == "#":
       raise Exception ("STORE called with constant operand on line {0}".format
                        (self.reg.getPc ()))
-    self.reg.setAddress (self.regindex (oper), self.reg.getAccumulator ())
+    address = self.regindex (oper)
+    if address == 0:
+      raise Exception ("illegal address 0 for STORE on line {0}".format
+                       (self.reg.getPc ()))
+    self.reg.setAddress (address, self.reg.getAccumulator ())
     self.reg.incrementPc ()
 
 class CommandAdd (Command):
+  """
+  add operand to accumulator
+  """
 
   def execute (self, oper):
     self.reg.setAccumulator (self.reg.getAccumulator () + self.decoper (oper))
     self.reg.incrementPc ()
 
 class CommandSub (Command):
+  """
+  subtract operand from accumulator
+  """
 
   def execute (self, oper):
     if self.decoper (oper) > self.reg.getAccumulator ():
-      self.reg.setAccumulator ()
+      self.reg.setAccumulator (0)
     else:
       self.reg.setAccumulator (self.reg.getAccumulator () - self.decoper (oper))
     self.reg.incrementPc ()
 
 class CommandMult (Command):
+  """
+  multiply accumulator by operand
+  """
 
   def execute (self, oper):
     self.reg.setAccumulator (self.reg.getAccumulator () * self.decoper (oper))
     self.reg.incrementPc ()
 
 class CommandDiv (Command):
+  """
+  divide accumulator by operand
+  """
 
   def execute (self, oper):
     if self.decoper (oper) == 0:
@@ -144,19 +166,34 @@ class CommandDiv (Command):
     self.reg.incrementPc ()
 
 class CommandGoto (Command):
+  """
+  goto line number
+  """
 
   def execute  (self, oper):
+    if oper[0] == "#" or oper[0] == "*":
+      raise Exception ("GOTO called with illegal operand on line {0}".format
+                       (self.reg.getPc ()))
     self.reg.setPc (int (oper))
 
 class CommandJzero (Command):
+  """
+  jump to given line if accumulator is 0 or increase pc by 1 if not
+  """
 
   def execute (self, oper):
+    if oper[0] == "#" or oper[0] == "*":
+      raise Exception ("JZERO called with illegal operand on line {0}".format
+                       (self.reg.getPc ()))
     if self.reg.getAccumulator () == 0:
       self.reg.setPc (int (oper))
     else:
       self.reg.incrementPc ()
 
 class CommandEnd (Command):
+  """
+  end the current program by setting pc to 0
+  """
 
   def execute (self, oper):
     self.reg.setPc (0)
@@ -164,6 +201,10 @@ class CommandEnd (Command):
 class CommandHandler:
 
   def __init__ (self, register):
+    """
+    initialize the handler and create instances of all commands
+    """
+    self.verbosity = 1
     self.reg= register
     self.commands = {}
     self.commands ["LOAD"] = CommandLoad (self.reg);
