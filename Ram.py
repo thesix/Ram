@@ -217,19 +217,24 @@ class CommandHandler:
     self.commands ["GOTO"] = CommandGoto (self.reg);
     self.commands ["END"] = CommandEnd (self.reg);
 
-  def printStatus (self, cmd):
-      # print "Execute command {0} ({1})".format (cmd[0], cmd[1])
-      print "K=({0}, R[".format (self.reg.getPc ()),
-      for i in range (0, self.reg.getLen ()):
-        print "\b({0},{1}), ".format (i, self.reg.getAddress (i)),
-      print "\b])"
-
   def execute (self, cmd):
+    """
+    execute the command cmd[0] with operand cmd[1]
+    @param cmd list with command name and operand
+    """
     try:
-      self.printStatus (cmd)
+      if self.verbosity > 0:
+        self.reg.printStatus ()
       self.commands[cmd[0]].execute (cmd[1])
     except KeyError as e:
       print "Command {0} not found".format (cmd[0])
+
+  def setVerbosity (self, verbosity):
+    """
+    set verbosity
+    @param verbosity new value of verbosity
+    """
+    self.verbosity = verbosity
 
 class Register:
 
