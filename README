@@ -5,6 +5,9 @@ Brief description
   'Theoretische Informatik' by Alexander Asteroth and Christel Baier
   (ISBN 3-8273-7033-7).
 
+  This little project is dedicated to Bernhard Nessler, who taught me
+  theoretical computer science at Graz Technical University.
+
 Usage
 
   Import Ram from the module Ram.py and create an instance Ram
